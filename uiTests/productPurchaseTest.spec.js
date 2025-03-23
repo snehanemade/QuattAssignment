@@ -3,6 +3,7 @@ const {HomePage} = require('../page_objects/HomePage');
 const {ProductDetailsPage} = require('../page_objects/ProductDetailsPage');
 const {CartPage} = require('../page_objects/CartPage');
 const {PlaceOrderDialog} = require('../page_objects/PlaceOrderDialog');
+const {SuccessfulPurchaseDialog} = require('../page_objects/SuccessfulPurchaseDialog');
 
 test.beforeEach(async ({ page }) => {
     await page.goto('https://www.demoblaze.com/index.html'); // Navigate to the website before each test
@@ -47,4 +48,20 @@ test('User can purchase a product', async ({page}) => {
     await placeOrderDialog.enterAddressDetails("Robert", "The Netherlands", "Amsterdam");
     await placeOrderDialog.enterCreditCardDetails("Test124567823", "Jan", "2045");
     await placeOrderDialog.purchaseBtn.click();
+
+    // Check successful purchase message
+    const successPurchaseDialog = new SuccessfulPurchaseDialog(page);
+    expect(await successPurchaseDialog.getSuccessMessage()).toBe("Thank you for your purchase!");
+});
+
+test('User should not be able to place an order without adding an product', async ({page}) => {
+     
+    // Navigate to cart
+     const homePage = new HomePage(page);  
+     await homePage.clickCartButton();
+     const cartPage = new CartPage(page);
+     expect(await cartPage.productsAdded.count()).toBe(0);
+
+     // Check purchase button
+     expect(await cartPage.placeOrderButton.isDisabled()).toBe(true);
 });
