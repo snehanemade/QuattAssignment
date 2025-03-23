@@ -1,9 +1,9 @@
 const {test, expect} = require('@playwright/test');
-const {HomePage} = require('../page_objects/HomePage');
-const {ProductDetailsPage} = require('../page_objects/ProductDetailsPage');
-const {CartPage} = require('../page_objects/CartPage');
-const {PlaceOrderDialog} = require('../page_objects/PlaceOrderDialog');
-const {SuccessfulPurchaseDialog} = require('../page_objects/SuccessfulPurchaseDialog');
+const {HomePage} = require('../../page_objects/HomePage');
+const {ProductDetailsPage} = require('../../page_objects/ProductDetailsPage');
+const {CartPage} = require('../../page_objects/CartPage');
+const {PlaceOrderDialog} = require('../../page_objects/PlaceOrderDialog');
+const {SuccessfulPurchaseDialog} = require('../../page_objects/SuccessfulPurchaseDialog');
 
 test.beforeEach(async ({ page }) => {
     await page.goto('https://www.demoblaze.com/index.html'); // Navigate to the website before each test
