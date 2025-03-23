@@ -1,6 +1,6 @@
 const {test, expect} = require('@playwright/test');
-const {LoginPage} = require('../page_objects/LoginPage');
-const {HomePage} = require('../page_objects/HomePage');
+const {LoginPage} = require('../../page_objects/LoginPage');
+const {HomePage} = require('../../page_objects/HomePage');
 
 test('Check if login is successful', async ({page}) => {
     await page.goto('https://www.demoblaze.com/index.html');
