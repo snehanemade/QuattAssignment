@@ -53,8 +53,8 @@ test.describe.serial('User API CRUD Operations', () => {
     test('Should create a new user successfully', async ({ request }) => {
 
         // Test Data
-        const name = 'Neha sixth';
-        const email = 'neha.sixth@example.com';
+        const name = 'Neha Seventh';
+        const email = 'neha.seventh@example.com';
         const gender = 'female';
         const status = 'active';
 
@@ -162,8 +162,8 @@ test.describe.serial('User API CRUD Operations', () => {
                 'Authorization': `Bearer ${token}`, 
             },
             data: {
-                name: 'Neha changed2',
-                email: 'nehaa.changed2@example.com',
+                name: 'Neha attempt1',
+                email: 'nehaa.attempt1@example.com',
                 gender: "female",
                 status: "inactive"
             }
@@ -173,8 +173,8 @@ test.describe.serial('User API CRUD Operations', () => {
         const responseBody = await response.json();
 
         // Check response details
-        expect(responseBody).toHaveProperty('name', 'Neha changed2');
-        expect(responseBody).toHaveProperty('email', 'nehaa.changed2@example.com');
+        expect(responseBody).toHaveProperty('name', 'Neha attempt1');
+        expect(responseBody).toHaveProperty('email', 'nehaa.attempt1@example.com');
         expect(responseBody).toHaveProperty('status', 'inactive');
     });
 
@@ -247,7 +247,6 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should delete user successfully', async ({ request }) => {
 
-        userId = 7791280;
         // Make API request for DELETE method
         let response = await request.delete(`${apiBaseUrl}/${userId}`, {
             headers: {
