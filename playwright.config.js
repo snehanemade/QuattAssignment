@@ -11,7 +11,7 @@ const { defineConfig, devices } = require('@playwright/test');
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({
-  testDir: './uiTests',
+  testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -37,7 +37,7 @@ module.exports = defineConfig({
       name: 'chrome',
       use: { 
         browserName: 'chromium',
-        headless: false,
+        headless: true,
         screenshot: 'on',
         video: 'retain-on-failure',
         trace: 'on',
