@@ -5,7 +5,7 @@ const token = 'd0ed1643690dcd1160720ca3db9d8cd251ffe6c7a276048861ac44a65a9cd4b7'
 
 export const apiHelper = {
 
-    async GetUser(request, userId) {
+    async getUser(request, userId) {
         const response = await request.get(`${apiBaseUrl}/${userId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,

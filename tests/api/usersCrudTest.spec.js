@@ -20,7 +20,7 @@ test.describe.serial('User API CRUD Operations', () => {
         userId = responseBody.id;
 
         // Call API GET method to retrieve details of non existing user
-        response = await apiHelper.GetUser(request, userId);
+        response = await apiHelper.getUser(request, userId);
         expect(response.status()).toBe(200);
 
         responseBody = await response.json();
@@ -41,7 +41,7 @@ test.describe.serial('User API CRUD Operations', () => {
     test('Should return 404 for non existing user', async ({ request }) => {
 
         // Call API GET method to retrieve details of non existing user
-        let response = await apiHelper.GetUser(request, 123);
+        let response = await apiHelper.getUser(request, 123);
 
         expect(response.status()).toBe(404);
         const responseBody = await response.json();
@@ -73,7 +73,7 @@ test.describe.serial('User API CRUD Operations', () => {
         expect(responseBody).toBeTruthy();
 
         // Check if user is created by calling API GET method 
-        response = await apiHelper.GetUser(request, userId);
+        response = await apiHelper.getUser(request, userId);
         expect(response.status()).toBe(200);
 
         responseBody = await response.json();
@@ -209,7 +209,7 @@ test.describe.serial('User API CRUD Operations', () => {
         let responseBody = await response.json();
         expect(responseBody).toHaveProperty('id');
 
-        // Get userId
+        // Get userId 
         userId = responseBody.id;
 
         const partialUserData = createPartialTestData();
@@ -243,7 +243,7 @@ test.describe.serial('User API CRUD Operations', () => {
         expect(response.status()).toBe(204);
 
         // Check if user is deleted by calling API GET method
-        response = await apiHelper.GetUser(request, userId);
+        response = await apiHelper.getUser(request, userId);
 
         // Check if user does not exist
         expect(response.status()).toBe(404);
