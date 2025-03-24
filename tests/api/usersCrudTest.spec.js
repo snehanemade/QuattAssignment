@@ -1,8 +1,7 @@
-const {test, expect} = require('@playwright/test');
-const { use } = require('../../playwright.config');
+import { test, expect } from '@playwright/test';
+import { createUserTestData, createUserInvalidTestData, createUserTestDataForUpdate, createPartialTestData } from '../../helpers/dataHelper';
+import { apiHelper } from '../../helpers/apiHelper';
 
-const apiBaseUrl = "https://gorest.co.in/public/v2/users";
-const token = 'd0ed1643690dcd1160720ca3db9d8cd251ffe6c7a276048861ac44a65a9cd4b7';
 
 test.describe.serial('User API CRUD Operations', () => {
 
@@ -10,40 +9,39 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should fetch user details by Id successfully', async ({ request }) => {
 
-        userId = 7790731;
+        // Generate test data
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+        let responseBody = await response.json();
+        expect(responseBody).toHaveProperty('id');
 
-        // Make API request for GET method
-        const response = await request.get(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        // Get userId 
+        userId = responseBody.id;
 
-        // Check if user creation is successful
+        // Call API GET method to retrieve details of non existing user
+        response = await apiHelper.GetUser(request, userId);
         expect(response.status()).toBe(200);
 
-        const responseBody = await response.json();
-        expect(responseBody).toHaveProperty('id', 7790731);
+        responseBody = await response.json();
+        expect(responseBody).toHaveProperty('id', userId);
 
         // Check response details
         userId = responseBody.id;
-        expect(responseBody).toHaveProperty('name', 'Tom Hunks');
-        expect(responseBody).toHaveProperty('email', 'tom.hunks@hunking.play');
-        expect(responseBody).toHaveProperty('gender', 'male');
-        expect(responseBody).toHaveProperty('status', 'active');
+        expect.soft(responseBody.name).toBe(user.name);
+        expect.soft(responseBody.email).toBe(user.email);
+        expect.soft(responseBody.gender).toBe(user.gender);
+        expect.soft(responseBody.status).toBe(user.status);
+
+        // Final assert to fail test if any soft assertion fails
+        expect(responseBody).toBeTruthy();
     });
 
 
     test('Should return 404 for non existing user', async ({ request }) => {
 
-        userId = 123;
-    
-        // Make API request for GET method
-        const response = await request.get(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            }
-        });
+        // Call API GET method to retrieve details of non existing user
+        let response = await apiHelper.GetUser(request, 123);
 
         expect(response.status()).toBe(404);
         const responseBody = await response.json();
@@ -52,24 +50,11 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should create a new user successfully', async ({ request }) => {
 
-        // Test Data
-        const name = 'Neha Seventh';
-        const email = 'neha.seventh@example.com';
-        const gender = 'female';
-        const status = 'active';
+        // Generate test data
+        const user = createUserTestData();
 
-         // Make API request for POST method
-        let response = await request.post(apiBaseUrl, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            data: {
-                name: `${name}`,
-                email: `${email}`,
-                gender: `${gender}`,
-                status: `${status}`,
-            }
-        });
+        // Call API POST method to create a user
+        let response = await apiHelper.createUser(request, user);
 
         // Check if user creation is successful
         expect(response.status()).toBe(201);
@@ -79,50 +64,42 @@ test.describe.serial('User API CRUD Operations', () => {
 
         // Check response details
         userId = responseBody.id;
-        expect(responseBody).toHaveProperty('name', name);
-        expect(responseBody).toHaveProperty('email', email);
-        expect(responseBody).toHaveProperty('gender', gender);
-        expect(responseBody).toHaveProperty('status', status);
+        expect.soft(responseBody.name).toBe(user.name);
+        expect.soft(responseBody.email).toBe(user.email);
+        expect.soft(responseBody.gender).toBe(user.gender);
+        expect.soft(responseBody.status).toBe(user.status);
 
-        // Make API request for GET method
-        response = await request.get(`${apiBaseUrl}/${userId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-        });
+        // Final assert to fail test if any soft assertion fails
+        expect(responseBody).toBeTruthy();
 
-        // Check if user creation is successful
+        // Check if user is created by calling API GET method 
+        response = await apiHelper.GetUser(request, userId);
         expect(response.status()).toBe(200);
 
         responseBody = await response.json();
-        expect(responseBody).toHaveProperty('id', userId);
+        expect(responseBody.id).toBe(userId);
 
-        // Check response details
-        expect(responseBody).toHaveProperty('name', name);
-        expect(responseBody).toHaveProperty('email', email);
-        expect(responseBody).toHaveProperty('gender', gender);
-        expect(responseBody).toHaveProperty('status', status);
+        // Check details of created user
+        expect.soft(responseBody.name).toBe(user.name);
+        expect.soft(responseBody.email).toBe(user.email);
+        expect.soft(responseBody.gender).toBe(user.gender);
+        expect.soft(responseBody.status).toBe(user.status);
+
+        expect(responseBody).toBeTruthy();
     });
-    
+
     test('Should not create user with invalid data', async ({ request }) => {
 
-        // Make API request for POST method
-        const response = await request.post(apiBaseUrl, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            },
-            data: {
-                name: 'Neha Nemo',
-                email: 'nemo@example.com',
-                gender: 'female',
-                status: 'processed' 
-            }
-        });
+        // Generate test data
+        const user = createUserInvalidTestData();
 
+        // Call API POST method to create a user
+        let response = await apiHelper.createUser(request, user);
         expect(response.status()).toBe(422);
+
         const responseBody = await response.json();
 
-        // Status field accepts only active or inactive values
+        // status field accepts only active or inactive values
         expect(responseBody[0]).toEqual({
             field: "status",
             message: "can\'t be blank"
@@ -131,18 +108,13 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should not create user with duplicate data', async ({ request }) => {
 
-        // Make API request for POST method
-        const response = await request.post(apiBaseUrl, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            },
-            data: {
-                name: 'Tom Hunks',
-                email: 'tom.hunks@hunking.play',
-                gender: 'male',
-                status: 'active' 
-            }
-        });
+        // Generate test data 
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+
+        // Call API POST method to create a user with duplicate data
+        response = await apiHelper.createUser(request, user);
 
         expect(response.status()).toBe(422);
         const responseBody = await response.json();
@@ -156,45 +128,52 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should update user details successfully', async ({ request }) => {
 
-        // Make API request for PUT method
-        const response = await request.put(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            },
-            data: {
-                name: 'Neha attempt1',
-                email: 'nehaa.attempt1@example.com',
-                gender: "female",
-                status: "inactive"
-            }
-        });
+        // Generate test data
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+        let responseBody = await response.json();
+        expect(responseBody).toHaveProperty('id');
 
+        // Get userId 
+        userId = responseBody.id;
+
+        const updatedUserData = createUserTestDataForUpdate();
+
+        // Call API PUT method to update all the user data
+        response = await apiHelper.updateUser(request, userId, updatedUserData);
         expect(response.status()).toBe(200);
-        const responseBody = await response.json();
 
-        // Check response details
-        expect(responseBody).toHaveProperty('name', 'Neha attempt1');
-        expect(responseBody).toHaveProperty('email', 'nehaa.attempt1@example.com');
-        expect(responseBody).toHaveProperty('status', 'inactive');
+        responseBody = await response.json();
+
+        // Check if uesr details are updated
+        expect.soft(responseBody.name).toBe(updatedUserData.name);
+        expect.soft(responseBody.email).toBe(updatedUserData.email);
+        expect.soft(responseBody.gender).toBe(updatedUserData.gender);
+        expect.soft(responseBody.status).toBe(updatedUserData.status);
+
+        expect(responseBody).toBeTruthy();
     });
 
-    test('Should return 404 for invalid update data', async ({ request }) => {
+    test('Should return 422 for invalid update data', async ({ request }) => {
 
-        // Make API request for PUT method
-        const response = await request.put(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            },
-            data: {
-                name: 'Neha changed',
-                email: 'nehaa@example.com',
-                gender: "female",
-                status: "updated"
-            }
-        });
+        // Generate test data 
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+        let responseBody = await response.json();
+        expect(responseBody).toHaveProperty('id');
 
+        // Get userId 
+        userId = responseBody.id;
+
+        const invalidUpdateData = createUserInvalidTestData();
+
+        // Call API PUT method to create a user with duplicate data
+        response = await apiHelper.updateUser(request, userId, invalidUpdateData);
         expect(response.status()).toBe(422);
-        const responseBody = await response.json();
+
+        responseBody = await response.json();
 
         // Status field accepts only active or inactive values
         expect(responseBody[0]).toEqual({
@@ -205,18 +184,15 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should return 404 for updating non existing user', async ({ request }) => {
 
-        // Make API request for PUT method
-        const response = await request.put(`${apiBaseUrl}/123`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            },
-            data: {
-                name: 'Neha changed',
-                email: 'nehaa@example.com',
-                gender: "female",
-                status: "updated"
-            }
-        });
+        // Generate test data
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+
+        const updatedUserData = createUserTestDataForUpdate();
+
+        // Call API PUT method to create a user with duplicate data
+        response = await apiHelper.updateUser(request, 123, updatedUserData);
 
         expect(response.status()).toBe(404);
         const responseBody = await response.json();
@@ -226,63 +202,63 @@ test.describe.serial('User API CRUD Operations', () => {
 
     test('Should update user details uisng patch', async ({ request }) => {
 
-        // Make API request for PUT method
-        const response = await request.patch(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            },
-            data: {
-                name: 'Neha patchUpdate',
-                gender: "male"
-            }
-        });
+        // Generate test data
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+        let responseBody = await response.json();
+        expect(responseBody).toHaveProperty('id');
 
+        // Get userId
+        userId = responseBody.id;
+
+        const partialUserData = createPartialTestData();
+
+        // Call API PATCH method to update gender and status of a user
+        response = await apiHelper.updateUserPartial(request, userId, partialUserData);
         expect(response.status()).toBe(200);
-        const responseBody = await response.json();
+        responseBody = await response.json();
 
-        // Check response details
-        expect(responseBody).toHaveProperty('name', 'Neha patchUpdate');
-        expect(responseBody).toHaveProperty('gender', 'male');
+        // Check if uesr data is updated
+        expect.soft(responseBody.gender).toBe(partialUserData.gender);
+        expect.soft(responseBody.status).toBe(partialUserData.status);
+
+        expect(responseBody).toBeTruthy();
     });
 
     test('Should delete user successfully', async ({ request }) => {
 
-        // Make API request for DELETE method
-        let response = await request.delete(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            }
-        });
+        // Generate test data 
+        const user = createUserTestData();
+        let response = await apiHelper.createUser(request, user);
+        expect(response.status()).toBe(201);
+        let responseBody = await response.json();
+        expect(responseBody).toHaveProperty('id');
 
+        // Get userId 
+        userId = responseBody.id;
+
+        // Call API DELETE method to delete a user
+        response = await apiHelper.deleteUser(request, userId);
         expect(response.status()).toBe(204);
 
-        // Make API request for GET method to verify if user is deleted
-        response = await request.get(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        // Check if user is deleted by calling API GET method
+        response = await apiHelper.GetUser(request, userId);
 
         // Check if user does not exist
         expect(response.status()).toBe(404);
 
-        const responseBody = await response.json();
+        responseBody = await response.json();
         expect(responseBody).toHaveProperty('message', 'Resource not found');
     });
 
     test('Should return 404 for deleting non existing user', async ({ request }) => {
 
-        userId = 123;
-        // Make API request for DELETE method
-        let response = await request.delete(`${apiBaseUrl}/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-            }
-        });
-
+        // Call API DELETE method to delete non existing user
+        const response = await apiHelper.deleteUser(request, 123);
         expect(response.status()).toBe(404);
+
         const responseBody = await response.json();
         expect(responseBody).toHaveProperty('message', 'Resource not found');
     });
-
 });

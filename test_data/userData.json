@@ -1,0 +1,24 @@
+[
+    {
+      "name": "Neha Sanyal",
+      "email": "neha_{{randomNumber}}@example.com",
+      "gender": "female",
+      "status": "inactive"
+    },
+    {
+      "name": "Neha Sanyal",
+      "email": "neha_{{randomNumber}}@example.com",
+      "gender": "female",
+      "status": "processed"
+    },
+    {
+      "name": "Tom Hunks",
+      "email": "tom.{{randomNumber}}@hunking.play",
+      "gender": "male",
+      "status": "active"
+    },
+    {
+      "gender": "male",
+      "status": "inactive"
+    }
+]
