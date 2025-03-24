@@ -1,5 +1,3 @@
-const { get } = require("http");
-
 class CartPage {
 
     constructor(page) {
