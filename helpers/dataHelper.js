@@ -3,7 +3,7 @@ const testData = require('../test_data/userData.json');
 export const createUser = () => {
 
     // Generate dynamic value for email here
-    const randomNumber = Math.floor(Math.random() * 1000);
+    const randomNumber = Math.floor(Math.random() * 10000);
 
     const user = {
         ...testData[0], 
@@ -16,7 +16,7 @@ export const createUser = () => {
 export const createUserTestData = () => {
 
     // Generate dynamic value for email here
-    const randomNumber = Math.floor(Math.random() * 1000);
+    const randomNumber = Math.floor(Math.random() * 10000);
 
     const user = {
         ...testData[0], 
@@ -28,7 +28,7 @@ export const createUserTestData = () => {
 export const createUserInvalidTestData = () => {
 
     // Generate dynamic value for email here
-    const randomNumber = Math.floor(Math.random() * 1000);
+    const randomNumber = Math.floor(Math.random() * 10000);
 
     const user = {
         ...testData[1], 
@@ -40,7 +40,7 @@ export const createUserInvalidTestData = () => {
 export const createUserDuplicateTestData = () => {
 
     // Generate dynamic value for email here
-    const randomNumber = Math.floor(Math.random() * 1000);
+    const randomNumber = Math.floor(Math.random() * 10000);
 
     const user = {
         ...testData[1], 
@@ -52,7 +52,7 @@ export const createUserDuplicateTestData = () => {
 export const createUserTestDataForUpdate = () => {
 
     // Generate dynamic value for email here
-    const randomNumber = Math.floor(Math.random() * 1000);
+    const randomNumber = Math.floor(Math.random() * 10000);
 
     const user = {
         ...testData[2], 

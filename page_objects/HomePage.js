@@ -4,10 +4,10 @@ class HomePage
         this.page = page;
         this.loginButton = page.locator('#login2');
         this.cartButton = page.locator('.nav-item a:has-text("Cart")');
+        this.HomeButton = page.locator('.nav-item a:has-text("Home")');
     }
 
     get nextButton() {
-        
         return this.page.locator('#next2');
     }
 
@@ -17,6 +17,11 @@ class HomePage
     }
 
     async clickCartButton() {
+        await this.cartButton.click();
+        await this.page.waitForLoadState('load');
+    }
+
+    async clickHomeButton() {
         await this.cartButton.click();
         await this.page.waitForLoadState('load');
     }
